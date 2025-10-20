@@ -21,6 +21,15 @@ import debounce from "lodash.debounce";
 
 import { HeaderSimple } from "./HeaderSimple";
 import {
+  PROMPT_SUGGESTION_SYSTEM_PROMPT,
+  EXPLANATION_SUGGESTION_SYSTEM_PROMPT,
+  STRENGTH_SUGGESTION_SYSTEM_PROMPT,
+  WEAKNESS_SUGGESTION_SYSTEM_PROMPT,
+  TASK_DESCRIPTION_SUGGESTION_SYSTEM_PROMPT,
+  TASK_ASSESSMENT_SUGGESTION_SYSTEM_PROMPT,
+} from "./prompts";
+import { useSuggestion } from "./useSuggestion";
+import {
   AuthorInfoCallbackData,
   AuthorInfo,
   AuthorInfoProps,
@@ -300,7 +309,9 @@ interface FinalEvaluationProps {
 
 function FinalUnscoredEvaluation({ finishEvaluation, state }: FinalEvaluationProps) {
   const [strength, setStrength] = useState("");
+  const strengthSuggestion = useSuggestion(strength, STRENGTH_SUGGESTION_SYSTEM_PROMPT);
   const [weakness, setWeakness] = useState("");
+  const weaknessSuggestion = useSuggestion(weakness, WEAKNESS_SUGGESTION_SYSTEM_PROMPT);
   const [dailyUse, setDailyUse] = useState("");
   const [eventImprovement, setEventImprovement] = useState("");
   const finish = async () => {
@@ -364,6 +375,7 @@ function FinalUnscoredEvaluation({ finishEvaluation, state }: FinalEvaluationPro
         onChange={(e) => setStrength(e.currentTarget.value)}
         value={strength}
       />
+      {strengthSuggestion && <Text color="blue">{strengthSuggestion}</Text>}
       <Textarea
         label="What is/are as the main weakness(es) of this model? Please provide a brief explanation for each weakness mentioned 
     "
@@ -372,6 +384,7 @@ function FinalUnscoredEvaluation({ finishEvaluation, state }: FinalEvaluationPro
         onChange={(e) => setWeakness(e.currentTarget.value)}
         value={weakness}
       />
+      {weaknessSuggestion && <Text color="blue">{weaknessSuggestion}</Text>}
       <Textarea
         label="What, if anything, would need to be true for you to use this model on a daily basis?"
         minRows={4}
@@ -688,6 +701,7 @@ interface SkillTabProps {
   setSkillValue: (v: any) => void;
   setSkillComment: (v: string) => void;
   skillComment: string;
+  suggestion: string;
   allowScore: boolean;
 }
 
@@ -698,6 +712,7 @@ function SkillTab({
   setSkillValue,
   skillComment,
   setSkillComment,
+  suggestion,
   skillLevels,
   allowScore,
 }: SkillTabProps) {
@@ -721,6 +736,7 @@ function SkillTab({
           value={skillComment}
           onChange={(e) => setSkillComment(e.currentTarget.value)}
         />
+        {suggestion && <Text color="blue">{suggestion}</Text>}
       </Tabs.Panel>
     );
   } else {
@@ -752,6 +768,7 @@ interface PromptingProps {
 function Prompting({ nextPrompt, finishPrompting, state }: PromptingProps) {
   const [goal, setGoal] = useState<string>("");
   const [prompt, setPrompt] = useState<string>("");
+  const promptSuggestion = useSuggestion(prompt, PROMPT_SUGGESTION_SYSTEM_PROMPT);
   const [output, setOutput] = useState<string>("");
   const [tab, setTab] = useState<string | null>("intro");
   const [_promptHistory, setPromptHistory] = useState<string[]>([]);
@@ -866,8 +883,16 @@ function Prompting({ nextPrompt, finishPrompting, state }: PromptingProps) {
   const [planningExplaination, setPlanningExplaination] = useState("");
   const [analysisExplaination, setAnalysisExplaination] = useState("");
   const [conclusionsExplaination, setConclusionsExplaination] = useState("");
+  const conclusionsSuggestion = useSuggestion(conclusionsExplaination, EXPLANATION_SUGGESTION_SYSTEM_PROMPT);
   const [taskDescription, setTaskDescription] = useState("");
+  const taskDescriptionSuggestion = useSuggestion(taskDescription, TASK_DESCRIPTION_SUGGESTION_SYSTEM_PROMPT);
   const [taskAssessment, setTaskAssessment] = useState("");
+  const taskAssessmentSuggestion = useSuggestion(taskAssessment, TASK_ASSESSMENT_SUGGESTION_SYSTEM_PROMPT);
+  const understandingSuggestion = useSuggestion(understandingExplaination, EXPLANATION_SUGGESTION_SYSTEM_PROMPT);
+  const reviewSuggestion = useSuggestion(reviewExplaination, EXPLANATION_SUGGESTION_SYSTEM_PROMPT);
+  const hypothesisSuggestion = useSuggestion(hypothesisExplaination, EXPLANATION_SUGGESTION_SYSTEM_PROMPT);
+  const planningSuggestion = useSuggestion(planningExplaination, EXPLANATION_SUGGESTION_SYSTEM_PROMPT);
+  const analysisSuggestion = useSuggestion(analysisExplaination, EXPLANATION_SUGGESTION_SYSTEM_PROMPT);
   // TODO be sure to call updatePrompt.flush() before submission
 
   const submitPrompt = async () => {
@@ -1098,6 +1123,7 @@ function Prompting({ nextPrompt, finishPrompting, state }: PromptingProps) {
         value={prompt}
         onChange={(e) => updatePrompt(e.currentTarget.value)}
       />
+      {promptSuggestion && <Text color="blue">{promptSuggestion}</Text>}
       <FileInput
         label={
             <>
@@ -1154,6 +1180,7 @@ function Prompting({ nextPrompt, finishPrompting, state }: PromptingProps) {
           setSkillValue={setUnderstanding}
           skillComment={understandingExplaination}
           setSkillComment={setUnderstandingExplaination}
+          suggestion={understandingSuggestion}
           skillLevels={understanding_levels}
           allowScore={state.allowScore}
         />
@@ -1164,6 +1191,7 @@ function Prompting({ nextPrompt, finishPrompting, state }: PromptingProps) {
           setSkillValue={setReview}
           skillComment={reviewExplaination}
           setSkillComment={setReviewExplaination}
+          suggestion={reviewSuggestion}
           skillLevels={review_levels}
           allowScore={state.allowScore}
         />
@@ -1174,6 +1202,7 @@ function Prompting({ nextPrompt, finishPrompting, state }: PromptingProps) {
           setSkillValue={setHypothesis}
           skillComment={hypothesisExplaination}
           setSkillComment={setHypothesisExplaination}
+          suggestion={hypothesisSuggestion}
           skillLevels={hypothesis_levels}
           allowScore={state.allowScore}
         />
@@ -1184,6 +1213,7 @@ function Prompting({ nextPrompt, finishPrompting, state }: PromptingProps) {
           setSkillValue={setPlanning}
           skillComment={planningExplaination}
           setSkillComment={setPlanningExplaination}
+          suggestion={planningSuggestion}
           skillLevels={planning_levels}
           allowScore={state.allowScore}
         />
@@ -1194,6 +1224,7 @@ function Prompting({ nextPrompt, finishPrompting, state }: PromptingProps) {
           setSkillValue={setAnalysis}
           skillComment={analysisExplaination}
           setSkillComment={setAnalysisExplaination}
+          suggestion={analysisSuggestion}
           skillLevels={analysis_levels}
           allowScore={state.allowScore}
         />
@@ -1204,6 +1235,7 @@ function Prompting({ nextPrompt, finishPrompting, state }: PromptingProps) {
           setSkillValue={setConclusions}
           skillComment={conclusionsExplaination}
           setSkillComment={setConclusionsExplaination}
+          suggestion={conclusionsSuggestion}
           skillLevels={conclusion_levels}
           allowScore={state.allowScore}
         />
@@ -1215,6 +1247,7 @@ function Prompting({ nextPrompt, finishPrompting, state }: PromptingProps) {
             value={taskDescription}
             onChange={(e) => setTaskDescription(e.currentTarget.value)}
           />
+          {taskDescriptionSuggestion && <Text color="blue">{taskDescriptionSuggestion}</Text>}
           <Textarea
             label="Please assses the skill in a paragraph or more"
             autosize
@@ -1222,6 +1255,7 @@ function Prompting({ nextPrompt, finishPrompting, state }: PromptingProps) {
             value={taskAssessment}
             onChange={(e) => setTaskAssessment(e.currentTarget.value)}
           />
+          {taskAssessmentSuggestion && <Text color="blue">{taskAssessmentSuggestion}</Text>}
         </Tabs.Panel>
       </Tabs>
       <ComplianceCheckBox nonRestrictedProblem={nonRestrictedProblem} setNonRestrictedProblem={setNonRestrictedProblem}/>

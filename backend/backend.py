@@ -16,6 +16,7 @@ import uuid
 import config
 import textwrap
 import export
+from suggestion import get_suggestion_async
 
 FILES_PATH = Path("files")
 FILES_PATH.mkdir(exist_ok=True)
@@ -817,3 +818,11 @@ async def reviewers_progress(db: Session = Depends(get_db)):
     return ReviewRemaining(values=
         [ ReviewRemainingItem(key=author, count=count) for author, count in so_far]
         )
+
+@app.post("/api/suggestion", response_model=Suggestion)
+async def get_suggestion(request: SuggestionRequest):
+    suggestion = await get_suggestion_async(request.prompt, request.system_prompt, "development_key")
+    if suggestion:
+        return suggestion
+    else:
+        raise HTTPException(status_code=404, detail="Suggestion not found")

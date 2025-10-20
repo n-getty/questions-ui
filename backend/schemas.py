@@ -291,3 +291,10 @@ class ReviewRemaining(BaseModel):
 class DomainResponse(BaseModel):
     name: str
     id: int
+
+class Suggestion(BaseModel):
+    suggestion: str
+
+class SuggestionRequest(BaseModel):
+    prompt: str
+    system_prompt: str
