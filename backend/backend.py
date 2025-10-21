@@ -821,7 +821,7 @@ async def reviewers_progress(db: Session = Depends(get_db)):
 
 @app.post("/api/suggestion", response_model=Suggestion)
 async def get_suggestion(request: SuggestionRequest):
-    suggestion = await get_suggestion_async(request.prompt, request.system_prompt, "development_key")
+    suggestion = await get_suggestion_async(request.prompt, request.system_prompt, config.SUGGESTION_API_KEY)
     if suggestion:
         return suggestion
     else:
