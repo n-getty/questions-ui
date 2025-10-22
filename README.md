@@ -22,7 +22,15 @@ docker run \
 # ANL/Manual Development: 
 
 ```
-#use spack install npm and pip, and a few other dependencies
+# install spack if needed
+git clone --depth=2 https://github.com/spack/spack.git
+. spack/share/spack/setup-env.sh
+
+# create new conda env
+conda create -n labstyle python=3.12
+conda activate labstyle
+
+# use spack install npm and pip, and a few other dependencies
 spack env activate .
 spack install
 
@@ -42,9 +50,11 @@ ssh -J $ANL_USER@login.cels.anl.gov -D 127.0.0.1:10106 $ANL_USER@agpt-questions-
 export ALL_PROXY=socks5://127.0.0.1:10106
 
 # run the backend that hosts the frontend (as a background process in bash)
-unicorn --reload backend:app &
+pip install uvicorn[standard]
+uvicorn --reload backend:app &
 
 # run the frontend with hot-reloading, this will proxy requests to the backend
+cd ../frontend
 npm run dev
 ```
 
